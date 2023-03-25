@@ -66,8 +66,7 @@ class UserServiceTest
    */
   @ParameterizedTest
   @ValueSource(ints = { 1 })
-  void testFind( Integer userId )
-  {
+  void testFind( Integer userId ) {
     var user = this.userService.find( userId );
     assertNotNull( user );
     LOG.info( "Response: {}", user );
@@ -88,11 +87,19 @@ class UserServiceTest
    * {@link com.axity.office.service.impl.UserServiceImpl#create(com.axity.office.commons.dto.UserDto)}.
    */
   @Test
-  @Disabled("TODO: Actualizar la prueba de acuerdo a la entidad")
   void testCreate()
   {
-    var dto = new UserDto();
+    var dto = new UserDto();    
     // Crear de acuerdo a la entidad
+    var list = new ArrayList<RoleDto>();
+    list.add(createRole(1));
+    list.add(createRole(2));
+
+    dto.setUsername("JoasPuga");
+    dto.setEmail("joas.puga@axity.com");
+    dto.setName("Joas");
+    dto.setLastName("Puga");
+    dto.setRoles(list);
 
     var response = this.userService.create( dto );
     assertNotNull( response );
@@ -102,40 +109,136 @@ class UserServiceTest
     this.userService.delete( dto.getId() );
   }
 
-/**
-   * Test method for
-   * {@link com.axity.office.service.impl.UserServiceImpl#create(com.axity.office.commons.dto.UserDto)}.
-   */
+  /**
+  * Test method for createUserWithOneRole
+  * {@link com.axity.office.service.impl.UserServiceImpl#create(com.axity.office.commons.dto.UserDto)}.
+  */
   @Test
-  void createUser(){
+  void createUserWithOneRole(){
     var list = new ArrayList<RoleDto>();
-    list.add(creatRole(1));
-    list.add(creatRole(2));
+    list.add(createRole(1));
     
     var dto = new UserDto();
-    dto.setUsername("Username1");
-    dto.setEmail("username@mail.com");
-    dto.setName("User");
-    dto.setLastName("Name");
+    dto.setUsername("JoasJair");
+    dto.setEmail("joasjair@mail.com");
+    dto.setName("Joas Jair");
+    dto.setLastName("Puga");
     dto.setRoles(list); 
 
     var response = this.userService.create( dto );
     assertNotNull( response );
     assertEquals( 0, response.getHeader().getCode() );
     assertNotNull( response.getBody() );
+
+    this.userService.delete(dto.getId());
   }
 
-  private RoleDto creatRole(int id){
+  private RoleDto createRole(int id){
     var role = new RoleDto();
     role.setId(id);
     return role;
   }
 
+  /**
+  * Test method for createUserWithManyRoles
+  * {@link com.axity.office.service.impl.UserServiceImpl#create(com.axity.office.commons.dto.UserDto)}.
+  */
   @Test
-  void validateEmail(){
+  void createUserWithManyRoles(){
     var list = new ArrayList<RoleDto>();
-    list.add(creatRole(1));
-    list.add(creatRole(2));
+    list.add(createRole(1));
+    list.add(createRole(2));
+    list.add(createRole(3));
+    
+    var dto = new UserDto();
+    dto.setUsername("JoasJair");
+    dto.setEmail("joasjair@mail.com");
+    dto.setName("Joas Jair");
+    dto.setLastName("Puga");
+    dto.setRoles(list); 
+
+    var response = this.userService.create( dto );
+    assertNotNull( response );
+    assertEquals( 0, response.getHeader().getCode() );
+    assertNotNull( response.getBody() );
+
+    this.userService.delete(dto.getId());
+  }
+
+  /**
+  * Test method for createUserWithRoleInexistent
+  * {@link com.axity.office.service.impl.UserServiceImpl#create(com.axity.office.commons.dto.UserDto)}.
+  */
+  @Test
+  void createUserWithRoleInexistent(){
+    var list = new ArrayList<RoleDto>();
+    list.add(createRole(1001));
+    
+    var dto = new UserDto();
+    dto.setUsername("JoasJair");
+    dto.setEmail("joasjair@mail.com");
+    dto.setName("Joas Jair");
+    dto.setLastName("Puga");
+    dto.setRoles(list); 
+
+    var response = this.userService.create( dto );
+    assertNotNull( response );
+    assertEquals( ErrorCode.ROLE_NOT_FOUND.getCode(), response.getHeader().getCode());
+  }
+
+  /**
+  * Test method for createUserWithEmptyRole
+  * {@link com.axity.office.service.impl.UserServiceImpl#create(com.axity.office.commons.dto.UserDto)}.
+  */
+  @Test
+  void createUserWithEmptyRole(){
+    var list = new ArrayList<RoleDto>();
+    
+    var dto = new UserDto();
+    dto.setUsername("JoasJair");
+    dto.setEmail("joasjair@mail.com");
+    dto.setName("Joas Jair");
+    dto.setLastName("Puga");
+    dto.setRoles(list); 
+
+    var response = this.userService.create( dto );
+    assertNotNull( response );
+    assertEquals( ErrorCode.NOT_ROLE_SELECTED.getCode(), response.getHeader().getCode());
+  }
+
+  /**
+   * Method to validate if username already exist
+   * {@link com.axity.office.service.impl.UserServiceImpl#create(com.axity.office.commons.dto.UserDto)}.
+   */
+  @Test
+  void testValidateUsernameAlreadyExist(){
+    var list = new ArrayList<RoleDto>();
+    list.add(createRole(1));
+    list.add(createRole(2));
+    
+    var dto = new UserDto();
+    dto.setUsername("jonah.stephens");
+    dto.setEmail("joaspuga@company.net");
+    dto.setName("Jair");
+    dto.setLastName("Mora");
+    dto.setRoles(list); 
+
+    var response = this.userService.create( dto );
+    assertNotNull( response );
+    assertEquals( ErrorCode.USERNAME_ALREADY_EXISTS.getCode(), response.getHeader().getCode());
+    assertNull(response.getBody());
+    
+  }
+
+  /**
+   * Method to validate if email already exist
+   * {@link com.axity.office.service.impl.UserServiceImpl#create(com.axity.office.commons.dto.UserDto)}.
+   */
+  @Test
+  void testValidateEmailAlreadyExist(){
+    var list = new ArrayList<RoleDto>();
+    list.add(createRole(1));
+    list.add(createRole(2));
     
     var dto = new UserDto();
     dto.setUsername("Username1");
@@ -146,7 +249,7 @@ class UserServiceTest
 
     var response = this.userService.create( dto );
     assertNotNull( response );
-    assertEquals( 12, response.getHeader().getCode() );
+    assertEquals( ErrorCode.EMAIL_ALREADY_EXISTS.getCode(), response.getHeader().getCode());
     assertNull(response.getBody());
     
   }
@@ -155,11 +258,12 @@ class UserServiceTest
    * Method to validate update
    */
   @Test
-  @Disabled("TODO: Actualizar la prueba de acuerdo a la entidad")
   void testUpdate()
   {
     var user = this.userService.find( 1 ).getBody();
     // TODO: actualizar de acuerdo a la entidad
+    String name = "Joas";
+    user.setName(name);
 
     var response = this.userService.update( user );
 
@@ -169,6 +273,7 @@ class UserServiceTest
     user = this.userService.find( 1 ).getBody();
 
     // Verificar que se actualice el valor
+    assertEquals(name, user.getName());
   }
 
   /**
