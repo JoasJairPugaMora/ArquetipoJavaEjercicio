@@ -8,15 +8,15 @@ import org.springframework.stereotype.Repository;
 
 import com.axity.office.model.UserDO;
 
-
 /**
- * Persistence interface of  de {@link com.axity.office.model.UserDO}
+ * Persistence interface of de {@link com.axity.office.model.UserDO}
  * 
  * @author username@axity.com
  */
 @Repository
-public interface UserPersistence extends JpaRepository<UserDO, Integer>
-{
+public interface UserPersistence extends JpaRepository<UserDO, Integer> {
   // Agregar consultas personalizadas
+  Optional<UserDO> findByUsername(String username);
+
   Optional<UserDO> findByEmail(String email);
 }
